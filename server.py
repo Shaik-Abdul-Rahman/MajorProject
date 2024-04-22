@@ -5,6 +5,22 @@ import os
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
+
+def init_status(user):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    print(user)
+    cursor.execute('SELECT * FROM users WHERE username = ?',(user,))
+    data = cursor.fetchone()
+    print(data)
+    status1 = data[3]
+    print('hello')
+    
+    print(status1)
+    return status1
+
+
+
 # Function to create a database connection
 def get_db_connection():
     conn = sqlite3.connect('database.db')
@@ -44,6 +60,12 @@ def signup():
         username = request.form['username']
         password = request.form['password']
         conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT username FROM users WHERE username = ?',(username,))
+        user_exists = cursor.fetchone()
+        if user_exists:
+            print(user_exists)
+            return render_template('signup.html',error = 'The username already exists')
         conn.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
         conn.commit()
         conn.close()
@@ -51,17 +73,22 @@ def signup():
         return redirect('/home')
     return render_template('signup.html')
 
-appliance_status = 'OFF'
 
 # Route for the home page
 @app.route('/home',methods =['GET', 'POST'])
 def home():
 
     if 'username' in session:
+        appliance_status = init_status(session['username'])
+        if appliance_status == 1:
+            appliance_status = 'ON'
+        else:
+            appliance_status  = 'OFF'
         return render_template('home.html', status=appliance_status)
     else:
         return 'You are not logged in. <a href="/login">Login</a> or <a href="/signup">Sign up</a>.'
 
+    
 # Route to logout
 @app.route('/logout')
 def logout():
