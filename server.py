@@ -115,6 +115,9 @@ def logout():
     session.pop('username', None)
     return redirect('/')
 
+@app.route('/')
+def index():
+    return redirect('/login')
 
 ### Instead of this code we will use /update_status_and_temperature AJAX
 # Route to update status
@@ -197,7 +200,7 @@ def update_status_and_temperature():
 
 
 def generate_frames():
-    camera = cv2.VideoCapture(0)  # Change the argument to the camera index if using multiple cameras
+    camera = cv2.VideoCapture(1)  # Change the argument to the camera index if using multiple cameras
     camera.set(cv2.CAP_PROP_FRAME_WIDTH,320)
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT,320)
     while True:
@@ -219,4 +222,4 @@ def get_camera_feed():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)
