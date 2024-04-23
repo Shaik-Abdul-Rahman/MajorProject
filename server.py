@@ -32,11 +32,12 @@ def init_status(user):
     cursor.execute('SELECT * FROM users WHERE username = ?',(user,))
     data = cursor.fetchone()
     #print(data)
-    status1 = data[3]
+    status = data[3:]
+    print(status)
     #print('hello')
-    
+    conn.close()
     #print(status1)
-    return status1
+    return status
 
 
 
@@ -51,7 +52,8 @@ def create_table():
     conn = get_db_connection()
     conn.execute('''CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, 
                  username TEXT NOT NULL, password TEXT NOT NULL,
-                 app1 INTEGER DEFAULT 0,app2 INTEGER DEFAULT 0,app3 INTEGER DEFAULT 0)''')
+                 app1 INTEGER DEFAULT 0,app2 INTEGER DEFAULT 0,app3 INTEGER DEFAULT 0,
+                 app4 INTEGER DEFAULT 0,app5 INTEGER DEFAULT 0)''')
     conn.close()
 
 create_table()
@@ -99,8 +101,10 @@ def home():
 
     if 'username' in session:
         appliance_status = init_status(session['username'])
-        appliance_status = ['ON' if appliance_status == 1 else 'OFF']
-        return render_template('home.html', status=appliance_status[0],temp=appliance_status)
+        appliance_status = ['ON' if stat == 1 else 'OFF' for stat in appliance_status]
+        print(appliance_status)
+        return render_template('home.html', status1=appliance_status[0], status2=appliance_status[1],
+                           status3=appliance_status[2], status4=appliance_status[3], status5=appliance_status[4])
     else:
         return 'You are not logged in. <a href="/login">Login</a> or <a href="/signup">Sign up</a>.'
 
@@ -127,16 +131,22 @@ def logout():
 #     return jsonify({'message': 'Status updated successfully', 'status': appliance_status})
 
 
-def update_column(username, status):
+def update_column(username, status,app):
     conn = sqlite3.connect('database.db')
-    # if status == 'ON':
-    #     status = 1
-    # else :
-    #     status = 0
+    # # if status == 'ON':
+    # #     status = 1
+    # # else :
+    # #     status = 0
+    # print(status)
+    # stats = []
+    # for i in range(1,6):
+    #     stats[i] = status['status' + f'{i}']
+    # print(stats) 
+    # stats = [1 if stat == 'ON' else 0 for stat in stats]
+    status = 1 if status == 'ON' else 0
 
-    status = [1 if status == 'ON' else 0]
     cursor = conn.cursor()
-    cursor.execute('UPDATE users SET app1 = ? WHERE username = ? ',(status[0], username))
+    cursor.execute(f'UPDATE users SET app{app} = ?  WHERE username = ? ',(status ,username))
     conn.commit()
     conn.close()
 
@@ -167,11 +177,11 @@ def get_temperature():
 def update_status_and_temperature():
     global appliance_status, current_temperature  # Access the global status and temperature variables
     data = request.get_json()
-    status = data['status']
-    update_column(session['username'],status)
-    # Simulate temperature changes (for demonstration purposes)
-    current_temperature += random.uniform(-1, 1)
-    # appliance_status = status
+    
+    status = data.get('status')
+    appliance = data.get('applianceNumber')
+    print(appliance)
+    update_column(session['username'],status,appliance)
 
     '''
     with raspberry pi
@@ -180,7 +190,7 @@ def update_status_and_temperature():
 
     current_temperature, current_humidity = data['temp'], data['humidity']
     '''
-    
+    #return None
     return jsonify({'status': status, 'temperature': current_temperature, 'humidity':current_temperature})
 
 
@@ -204,7 +214,7 @@ def generate_frames():
 @app.route('/get_camera_feed')
 def get_camera_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-    #return None
+    
 
 
 

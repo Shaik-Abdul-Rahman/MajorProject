@@ -109,17 +109,62 @@
 <body>
     <div class="container">
         <h2>Control Appliance</h2>
+        <!-- Appliance 1 -->
         <div class="appliance">
             <div class="appliance-name">Living Room Light</div>
             <div class="slider">
                 <span class="text-off">Off</span>
-                <input type="checkbox" id="toggle" onchange="sendStatus()">
-                <label for="toggle"></label>
+                <input type="checkbox" id="toggle1" onchange="sendStatus(1)">
+                <label for="toggle1"></label>
             </div>
         </div>
-        <div id="status">Status: {{ status }}</div>
-        
+        <div id="status1">Status: {{ status1 }}</div>
+
+        <!-- Appliance 2 -->
+        <div class="appliance">
+            <div class="appliance-name">Kitchen Light</div>
+            <div class="slider">
+                <span class="text-off">Off</span>
+                <input type="checkbox" id="toggle2" onchange="sendStatus(2)">
+                <label for="toggle2"></label>
+            </div>
+        </div>
+        <div id="status2">Status: {{ status2 }}</div>
+
+        <!-- Appliance 3 -->
+        <div class="appliance">
+            <div class="appliance-name">Bedroom Light</div>
+            <div class="slider">
+                <span class="text-off">Off</span>
+                <input type="checkbox" id="toggle3" onchange="sendStatus(3)">
+                <label for="toggle3"></label>
+            </div>
+        </div>
+        <div id="status3">Status: {{ status3 }}</div>
+
+        <!-- Appliance 4 -->
+        <div class="appliance">
+            <div class="appliance-name">Bathroom Light</div>
+            <div class="slider">
+                <span class="text-off">Off</span>
+                <input type="checkbox" id="toggle4" onchange="sendStatus(4)">
+                <label for="toggle4"></label>
+            </div>
+        </div>
+        <div id="status4">Status: {{ status4 }}</div>
+
+        <!-- Appliance 5 -->
+        <div class="appliance">
+            <div class="appliance-name">Garage Light</div>
+            <div class="slider">
+                <span class="text-off">Off</span>
+                <input type="checkbox" id="toggle5" onchange="sendStatus(5)">
+                <label for="toggle5"></label>
+            </div>
+        </div>
+        <div id="status5">Status: {{ status5 }}</div>
     </div>
+
 
     <div class="container">
         <h2>Temperature</h2>
@@ -133,8 +178,8 @@
 
     <script>
         // Function to send status update to server
-        function sendStatus() {
-            var isChecked = document.getElementById('toggle').checked;
+        function sendStatus(applianceNumber) {
+            var isChecked = document.getElementById('toggle' + applianceNumber).checked;
             var status = isChecked ? 'ON' : 'OFF';
             var xhr = new XMLHttpRequest();
             xhr.open('POST', '/update_status_and_temperature', true);
@@ -143,13 +188,13 @@
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     if (xhr.status === 200) {
                         var response = JSON.parse(xhr.responseText);
-                        document.getElementById('status').innerText = 'Status: ' + response.status;
+                        document.getElementById('status' + applianceNumber).innerText = 'Status: ' + response.status;
                     } else {
                         console.error('Error updating status:', xhr.status);
                     }
                 }
             };
-            xhr.send(JSON.stringify({ status: status }));
+            xhr.send(JSON.stringify({ applianceNumber: applianceNumber, status: status }));
         }
 
         // Function to update temperature
@@ -170,27 +215,64 @@
             };
             xhr.send();
         }
+
+
+
+        
         function updateCameraFeed() {
         var imgElement = document.getElementById('camera_feed');
         imgElement.src = '/get_camera_feed?' + new Date().getTime(); // Add timestamp to URL to prevent caching
-    }
+        }
 
         updateCameraFeed();
         setInterval(updateCameraFeed, 2000);
         // Call updateTemperature function initially and every 5 seconds
         updateTemperature();
-        setInterval(updateTemperature, 10000); // 5000 milliseconds = 5 seconds
+        setInterval(updateTemperature, 10000); // 10000 milliseconds = 10 seconds
+
+
 
         window.onload = function() {
-        var initialStatus = "{{ status }}"; // Get initial status from the server-side template
-        var toggleCheckbox = document.getElementById('toggle');
+        var initialStatus = "{{ status1 }}"; // Get initial status from the server-side template
+        var toggleCheckbox = document.getElementById('toggle1');
+        if (initialStatus === "ON") {
+            toggleCheckbox.checked = true;
+        } else {
+            toggleCheckbox.checked = false;
+        }
+
+        var initialStatus = "{{ status2 }}"; // Get initial status from the server-side template
+        var toggleCheckbox = document.getElementById('toggle2');
+        if (initialStatus === "ON") {
+            toggleCheckbox.checked = true;
+        } else {
+            toggleCheckbox.checked = false;
+        }
+
+        var initialStatus = "{{ status3 }}"; // Get initial status from the server-side template
+        var toggleCheckbox = document.getElementById('toggle3');
+        if (initialStatus === "ON") {
+            toggleCheckbox.checked = true;
+        } else {
+            toggleCheckbox.checked = false;
+        }
+
+        var initialStatus = "{{ status4 }}"; // Get initial status from the server-side template
+        var toggleCheckbox = document.getElementById('toggle4');
+        if (initialStatus === "ON") {
+            toggleCheckbox.checked = true;
+        } else {
+            toggleCheckbox.checked = false;
+        }
+
+        var initialStatus = "{{ status5 }}"; // Get initial status from the server-side template
+        var toggleCheckbox = document.getElementById('toggle5');
         if (initialStatus === "ON") {
             toggleCheckbox.checked = true;
         } else {
             toggleCheckbox.checked = false;
         }
     };
-
     </script>
 </body>
 </html>
