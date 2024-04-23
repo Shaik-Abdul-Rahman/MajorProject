@@ -159,8 +159,10 @@
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     if (xhr.status === 200) {
-                        var temperature = JSON.parse(xhr.responseText);
-                        document.getElementById('temperature').innerText = 'Temperature: ' + temperature + '°C';
+                        var data = JSON.parse(xhr.responseText);
+                        var temperature = data.temperature;
+                        var humidity = data.humidity;
+                        document.getElementById('temperature').innerHTML = 'Temperature: ' + temperature + '°C<br>Humidity: ' + humidity + '%';
                     } else {
                         console.error('Error fetching temperature:', xhr.status);
                     }
@@ -174,10 +176,21 @@
     }
 
         updateCameraFeed();
-        setInterval(updateCameraFeed, 1000);
+        setInterval(updateCameraFeed, 2000);
         // Call updateTemperature function initially and every 5 seconds
         updateTemperature();
-        setInterval(updateTemperature, 5000); // 5000 milliseconds = 5 seconds
+        setInterval(updateTemperature, 10000); // 5000 milliseconds = 5 seconds
+
+        window.onload = function() {
+        var initialStatus = "{{ status }}"; // Get initial status from the server-side template
+        var toggleCheckbox = document.getElementById('toggle');
+        if (initialStatus === "ON") {
+            toggleCheckbox.checked = true;
+        } else {
+            toggleCheckbox.checked = false;
+        }
+    };
+
     </script>
 </body>
 </html>

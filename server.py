@@ -5,21 +5,37 @@ import random
 import time
 import cv2
 
+
+
+'''
+to be implemented with raspberry pi installed
+
+from sensors import DhtSensor
+
+sensor = DhtSensor()
+
+def readUpdate():
+    data = sensor.UpdateRead()
+    return data
+
+
+'''
+
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-
+current_temperature = 100
 
 def init_status(user):
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    print(user)
+    #print(user)
     cursor.execute('SELECT * FROM users WHERE username = ?',(user,))
     data = cursor.fetchone()
-    print(data)
+    #print(data)
     status1 = data[3]
-    print('hello')
+    #print('hello')
     
-    print(status1)
+    #print(status1)
     return status1
 
 
@@ -83,11 +99,8 @@ def home():
 
     if 'username' in session:
         appliance_status = init_status(session['username'])
-        if appliance_status == 1:
-            appliance_status = 'ON'
-        else:
-            appliance_status  = 'OFF'
-        return render_template('home.html', status=appliance_status,temp=appliance_status)
+        appliance_status = ['ON' if appliance_status == 1 else 'OFF']
+        return render_template('home.html', status=appliance_status[0],temp=appliance_status)
     else:
         return 'You are not logged in. <a href="/login">Login</a> or <a href="/signup">Sign up</a>.'
 
@@ -98,40 +111,55 @@ def logout():
     session.pop('username', None)
     return redirect('/')
 
+
+### Instead of this code we will use /update_status_and_temperature AJAX
 # Route to update status
-@app.route('/update_status',methods=['POST'])
-def update_status():
-    print("Received request to update status")  # Print statement to check if the route is being accessed
-    global appliance_status
-    data = request.get_json()
-    status = data['status']
-    appliance_status = status
-    print(session['username'])
-    update_column(session['username'],appliance_status)
-    print("Appliance Status:", appliance_status)  # Print the appliance status to console
-    return jsonify({'message': 'Status updated successfully', 'status': appliance_status})
+# @app.route('/update_status',methods=['POST'])
+# def update_status():
+#     print("Received request to update status")  # Print statement to check if the route is being accessed
+#     global appliance_status
+#     data = request.get_json()
+#     status = data['status']
+#     appliance_status = status
+#     print(session['username'])
+#     update_column(session['username'],appliance_status)
+#     print("Appliance Status:", appliance_status)  # Print the appliance status to console
+#     return jsonify({'message': 'Status updated successfully', 'status': appliance_status})
 
 
 def update_column(username, status):
     conn = sqlite3.connect('database.db')
-    if status == 'ON':
-        status = 1
-    else :
-        status = 0
+    # if status == 'ON':
+    #     status = 1
+    # else :
+    #     status = 0
+
+    status = [1 if status == 'ON' else 0]
     cursor = conn.cursor()
-    cursor.execute('UPDATE users SET app1 = ? WHERE username = ? ',(status, username))
+    cursor.execute('UPDATE users SET app1 = ? WHERE username = ? ',(status[0], username))
     conn.commit()
     conn.close()
 
 
-current_temperature = 100
+
 @app.route('/get_temperature')
 def get_temperature():
-    global current_temperature  # Access the global temperature variable
-    # Simulate temperature changes (for demonstration purposes)
+    global current_temperature 
     current_temperature += random.uniform(-1, 1)
     time.sleep(1)  # Simulate delay
-    return jsonify(current_temperature)
+
+    
+    '''
+    with raspberry pi
+
+    data = readUpdate()
+
+    current_temperature, current_humidity = data['temp'], data['humidity']
+    '''
+    
+
+
+    return jsonify({'temperature':current_temperature,'humidity':current_temperature})
 
 
 
@@ -143,18 +171,25 @@ def update_status_and_temperature():
     update_column(session['username'],status)
     # Simulate temperature changes (for demonstration purposes)
     current_temperature += random.uniform(-1, 1)
+    # appliance_status = status
+
+    '''
+    with raspberry pi
+
+    data = readUpdate()
+
+    current_temperature, current_humidity = data['temp'], data['humidity']
+    '''
     
-    # Update the status and temperature data
-    appliance_status = status
-    
-    return jsonify({'status': appliance_status, 'temperature': current_temperature})
+    return jsonify({'status': status, 'temperature': current_temperature, 'humidity':current_temperature})
 
 
 
 
 def generate_frames():
-    camera = cv2.VideoCapture(1)  # Change the argument to the camera index if using multiple cameras
-
+    camera = cv2.VideoCapture(0)  # Change the argument to the camera index if using multiple cameras
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH,320)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT,320)
     while True:
         success, frame = camera.read()
         if not success:
@@ -169,7 +204,7 @@ def generate_frames():
 @app.route('/get_camera_feed')
 def get_camera_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
+    #return None
 
 
 
