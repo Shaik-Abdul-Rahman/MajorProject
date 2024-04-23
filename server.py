@@ -1,6 +1,9 @@
-from flask import Flask, render_template, request, redirect, session, jsonify
+from flask import Flask, render_template, request, redirect, session, jsonify, Response
 import sqlite3
 import os
+import random
+import time
+import cv2
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -84,7 +87,7 @@ def home():
             appliance_status = 'ON'
         else:
             appliance_status  = 'OFF'
-        return render_template('home.html', status=appliance_status)
+        return render_template('home.html', status=appliance_status,temp=appliance_status)
     else:
         return 'You are not logged in. <a href="/login">Login</a> or <a href="/signup">Sign up</a>.'
 
@@ -119,6 +122,56 @@ def update_column(username, status):
     cursor.execute('UPDATE users SET app1 = ? WHERE username = ? ',(status, username))
     conn.commit()
     conn.close()
+
+
+current_temperature = 100
+@app.route('/get_temperature')
+def get_temperature():
+    global current_temperature  # Access the global temperature variable
+    # Simulate temperature changes (for demonstration purposes)
+    current_temperature += random.uniform(-1, 1)
+    time.sleep(1)  # Simulate delay
+    return jsonify(current_temperature)
+
+
+
+@app.route('/update_status_and_temperature', methods=['POST'])
+def update_status_and_temperature():
+    global appliance_status, current_temperature  # Access the global status and temperature variables
+    data = request.get_json()
+    status = data['status']
+    update_column(session['username'],status)
+    # Simulate temperature changes (for demonstration purposes)
+    current_temperature += random.uniform(-1, 1)
+    
+    # Update the status and temperature data
+    appliance_status = status
+    
+    return jsonify({'status': appliance_status, 'temperature': current_temperature})
+
+
+
+
+def generate_frames():
+    camera = cv2.VideoCapture(1)  # Change the argument to the camera index if using multiple cameras
+
+    while True:
+        success, frame = camera.read()
+        if not success:
+            break
+        else:
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+# Route to serve the camera feed
+@app.route('/get_camera_feed')
+def get_camera_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

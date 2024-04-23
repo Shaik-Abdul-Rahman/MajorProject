@@ -10,14 +10,17 @@
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columns */
+            grid-gap: 20px; /* Gap between grid items */
             justify-content: center;
             align-items: center;
             height: 100vh;
         }
         .container {
-            width: 300px;
             background-color: #fff;
+            width: 90%;
+            height: 90%;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
@@ -26,9 +29,18 @@
             text-align: center;
             margin-bottom: 20px;
         }
-        .appliance {
+        .appliance,
+        .temperature,
+        .camera {
             display: flex;
-            justify-content: space-between;
+            flex-direction: row;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .temperature {
+            width: 50%;
+            display: flex;
+            flex-direction: row;
             align-items: center;
             margin-bottom: 20px;
         }
@@ -105,21 +117,32 @@
                 <label for="toggle"></label>
             </div>
         </div>
-        <div id="status">Status: {{ status }}</div> <!-- Display the status here -->
+        <div id="status">Status: {{ status }}</div>
+        
+    </div>
+
+    <div class="container">
+        <h2>Temperature</h2>
+        <div id="temperature"></div>
+    </div>
+
+    <div class="container">
+        <h2>Camera Feed</h2>
+        <img id="camera_feed" src="" alt="Camera Feed" style="width: 100%; height: auto;">
     </div>
 
     <script>
+        // Function to send status update to server
         function sendStatus() {
             var isChecked = document.getElementById('toggle').checked;
             var status = isChecked ? 'ON' : 'OFF';
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/update_status', true);
+            xhr.open('POST', '/update_status_and_temperature', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     if (xhr.status === 200) {
                         var response = JSON.parse(xhr.responseText);
-                        // Update the status displayed on the webpage
                         document.getElementById('status').innerText = 'Status: ' + response.status;
                     } else {
                         console.error('Error updating status:', xhr.status);
@@ -128,6 +151,33 @@
             };
             xhr.send(JSON.stringify({ status: status }));
         }
+
+        // Function to update temperature
+        function updateTemperature() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/get_temperature', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        var temperature = JSON.parse(xhr.responseText);
+                        document.getElementById('temperature').innerText = 'Temperature: ' + temperature + '°C';
+                    } else {
+                        console.error('Error fetching temperature:', xhr.status);
+                    }
+                }
+            };
+            xhr.send();
+        }
+        function updateCameraFeed() {
+        var imgElement = document.getElementById('camera_feed');
+        imgElement.src = '/get_camera_feed?' + new Date().getTime(); // Add timestamp to URL to prevent caching
+    }
+
+        updateCameraFeed();
+        setInterval(updateCameraFeed, 1000);
+        // Call updateTemperature function initially and every 5 seconds
+        updateTemperature();
+        setInterval(updateTemperature, 5000); // 5000 milliseconds = 5 seconds
     </script>
 </body>
 </html>
