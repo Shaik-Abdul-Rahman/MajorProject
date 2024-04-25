@@ -24,6 +24,7 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            padding-left: 40px;
         }
         h2 {
             text-align: center;
@@ -35,14 +36,7 @@
             display: flex;
             flex-direction: row;
             align-items: center;
-            margin-bottom: 20px;
-        }
-        .temperature {
-            width: 50%;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .slider {
             display: flex;
@@ -104,6 +98,49 @@
             font-weight: bold;
             color: #333;
         }
+
+        .container button {
+            width: 200px; /* Set button width */
+            height: 60px; /* Set button height */
+            margin: 10px auto; /* Center button horizontally with some margin */
+            display: block; /* Make buttons appear vertically */
+            background-color: #4CAF50; /* Green accent color */
+            color: #fff; /* White text color */
+            border: none; /* Remove button border */
+            border-radius: 10px; /* Apply border radius */
+            font-size: 18px; /* Increase font size */
+            cursor: pointer; /* Add pointer cursor on hover */
+            transition: background-color 0.3s; /* Smooth transition for background color */
+        }
+
+        .container button:hover {
+            background-color: #45a049; /* Darker green color on hover */
+        }
+
+        .temperature {
+            background-color: #4CAF50; /* Green accent color for temperature container */
+            color: #fff; /* White text color */
+            width : 90%;
+            padding : 20px; /* Add padding for better appearance */
+            border-radius: 5px; /* Apply border radius */
+            text-align: center; /* Center text */
+            margin-bottom: 5px; /* Add some space at the bottom */
+            display: flex; /* Use flexbox to arrange sections horizontally */
+            flex-direction: column; /* Arrange sections vertically */
+            justify-content: center; /* Center content vertically */
+            align-items: center; /* Center content horizontally */
+        }
+
+        .temp-section,
+        .humidity-section {
+            padding: 10px; /* Add padding for spacing */
+            display: flex; /* Use flexbox to align content horizontally */
+            flex-direction: column; /* Arrange content vertically */
+            justify-content: center; /* Center content vertically */
+            align-items: center; /* Center content horizontally */
+            background-color: #388e3c;
+        }
+
     </style>
 </head>
 <body>
@@ -168,7 +205,16 @@
 
     <div class="container">
         <h2>Temperature</h2>
-        <div id="temperature"></div>
+        <div class="temperature">
+            <div class="temp-section">
+                <h3>Temperature</h3>
+                <p id="tempvalue"> {{ tempvalue }} </p>
+            </div>
+            <div class="humidity-section">
+                <h3>Humidity</h3>
+                <p id="humidityvalue">{{ humidity }}</p>
+            </div>
+        </div>
     </div>
 
     <div class="container">
@@ -176,7 +222,26 @@
         <img id="camera_feed" src="" alt="Camera Feed" style="width: 100%; height: auto;">
     </div>
 
+    <div class="container">
+        <h2>RFid Control</h2>
+        <button onclick="registerRFid()">Register RFid</button>
+        <button onclick="logout()">Logout</button>
+    </div>
+    
+
     <script>
+
+        //function to logout
+        function logout() {
+            alert("Do you want to logout.")
+            window.location.href = '/logout';
+        };
+
+        function registerRFid(){
+            //alert('You will be redirected to RFID Registration Site.')
+            window.location.href = '/rfid_register'
+        }
+
         // Function to send status update to server
         function sendStatus(applianceNumber) {
             var isChecked = document.getElementById('toggle' + applianceNumber).checked;
@@ -207,7 +272,9 @@
                         var data = JSON.parse(xhr.responseText);
                         var temperature = data.temperature;
                         var humidity = data.humidity;
-                        document.getElementById('temperature').innerHTML = 'Temperature: ' + temperature + '°C<br>Humidity: ' + humidity + '%';
+                        document.getElementById('tempvalue').innerHTML = temperature;
+                        document.getElementById('humidityvalue').innerHTML = humidity;
+                        //document.getElementById('temperature').innerHTML = 'Temperature: ' + temperature + '°C<br>Humidity: ' + humidity + '%';
                     } else {
                         console.error('Error fetching temperature:', xhr.status);
                     }
@@ -225,7 +292,7 @@
         }
 
         updateCameraFeed();
-        setInterval(updateCameraFeed, 2000);
+        setInterval(updateCameraFeed, 20000);
         // Call updateTemperature function initially and every 5 seconds
         updateTemperature();
         setInterval(updateTemperature, 10000); // 10000 milliseconds = 10 seconds

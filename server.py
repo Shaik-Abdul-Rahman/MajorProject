@@ -219,7 +219,33 @@ def get_camera_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
     
 
+@app.route('/rfid_register')
+def rfid_register():
+    return render_template('rfid_register.html')
 
+@app.route('/detail_confirmation',methods=['POST'])
+def detail_confirmation():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM users WHERE username = ? and password = ?',(username,password))
+    user = cursor.fetchone()
+
+    if user:
+        return jsonify({'confirmation': 'success'})
+    else:
+        return jsonify({'confirmation': 'failure'})
+    
+    return render_template
+
+@app.route('/confirm_card_registration',methods = ['GET'])
+def card_confirmation():
+
+    return jsonify({'registration':'success'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)
