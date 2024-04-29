@@ -57,11 +57,48 @@ def create_table():
         app2 INT DEFAULT 0,
         app3 INT DEFAULT 0,
         app4 INT DEFAULT 0,
-        app5 INT DEFAULT 0
+        app5 INT DEFAULT 0,
+        active INT DEFAULT 0,
+        temp DECIMAL(10,2) DEFAULT 27.50,
+        humidity DECIMAL DEFAULT 30.50
     )''')
     conn.commit()
     conn.close()
 
+def active_status(active=True):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    active = 1 if active == True else 0
+    if active:
+        cursor.execute('UPDATE users SET active = IF(username = %s ,1,0)',(session['username'],))
+    else:
+        cursor.execute('UPDATE users SET active = %s',(0,))
+    conn.commit()
+    conn.close()
+        
+def user_signup(username, password):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM users WHERE username = %s',(username,))
+    user = cursor.fetchall()
+    if user:
+        conn.close()
+        return True
+    else:
+        cursor.execute('INSERT INTO users (username, password, active) VALUES (%s, %s, %s)',(username, password, 1))
+        conn.commit()
+        conn.close()
+        return False
+
+
+def temp_update():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM users WHERE username = %s',(session['username'],))
+    user = cursor.fetchone()
+    conn.close()
+    return user[-2:]
 create_table()
 
 # Route for the login page
@@ -73,10 +110,12 @@ def login():
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM users WHERE username = %s AND password = %s', (username, password))
+        
         user = cursor.fetchone()
         conn.close()
         if user:
             session['username'] = username
+            active_status()
             return redirect('/home')
         else:
             return render_template('login.html', error='Invalid username or password')
@@ -88,15 +127,9 @@ def signup():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('SELECT username FROM users WHERE username = %s', (username,))
-        user_exists = cursor.fetchone()
+        user_exists = user_signup(username,password)
         if user_exists:
             return render_template('signup.html', error='The username already exists')
-        cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s)', (username, password))
-        conn.commit()
-        conn.close()
         session['username'] = username
         return redirect('/home')
     return render_template('signup.html')
@@ -114,6 +147,8 @@ def home():
 
 @app.route('/logout')
 def logout():
+    active_status(active=False)
+    time.sleep(3)
     session.pop('username', None)
     return redirect('/')
 
@@ -124,9 +159,8 @@ def index():
 @app.route('/get_temperature')
 def get_temperature():
     global current_temperature 
-    current_temperature += random.uniform(-1, 1)
-    time.sleep(1)  # Simulate delay
-    return jsonify({'temperature': current_temperature, 'humidity': current_temperature})
+    data = temp_update()
+    return jsonify({'temperature': data[0], 'humidity': data[1]})
 
 @app.route('/update_status_and_temperature', methods=['POST'])
 def update_status_and_temperature():

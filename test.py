@@ -1,24 +1,16 @@
-import mysql.connector
+import RPi.GPIO as GPIO
+import time
 
-# Connect to MySQL Server
-connection = mysql.connector.connect(database = 'db-hlx8d21axvv7',
-username = 'db-hlx8d21axvv7',
-password = 'QPDMAVVtbc39RG0l4R0ytGsO',
-host = 'up-us-sjo1-mysql-1.db.run-on-seenode.com',
-port = 11550)
+# Set up GPIO mode and pin number
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(17, GPIO.OUT)
 
-
-# Create a Cursor Object
-cursor = connection.cursor()
-
-# Execute SQL Command to Select the First Row
-cursor.execute("SHOW TABLES")
-
-tables = cursor.fetchall()
-
-    # Iterate over the list of tables and print their names
-for table in tables:
-    print(table[0])
-
-cursor.close()
-connection.close()
+# Toggle the GPIO pin
+try:
+    while True:
+        GPIO.output(17, GPIO.HIGH)  # Turn ON
+        time.sleep(1)
+        GPIO.output(17, GPIO.LOW)   # Turn OFF
+        time.sleep(1)
+except KeyboardInterrupt:
+    GPIO.cleanup()  # Cleanup GPIO settings on program exit
