@@ -168,7 +168,7 @@ def update_status_and_temperature():
     status = data.get('status')
     appliance = data.get('applianceNumber')
     update_column(session['username'], status, appliance)
-    return jsonify({'status': status, 'temperature': current_temperature, 'humidity': current_temperature})
+    return jsonify({'status': status})
 
 def generate_frames():
     camera = cv2.VideoCapture(1)
