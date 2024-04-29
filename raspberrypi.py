@@ -1,5 +1,6 @@
 from mysql import connector
 import time
+#from sensors import *
 
 def get_db_connection():
     conn = connector.connect(
@@ -20,9 +21,17 @@ def main():
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM users WHERE active = %s',(1,))
-        data = cursor.fetchall()
-        print(data)
+        data = cursor.fetchone()
+        print(data[3:8])
         time.sleep(2)
+        '''
+        Uncomment when connected with raspberry pi
+        from sensors import *
+
+        appliances = Bulb(data[3:8])
+
+        '''
+
         conn.close()
 
 if __name__ == '__main__':
