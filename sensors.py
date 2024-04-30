@@ -8,40 +8,40 @@ class DhtSensor:
         self.sensor = Adafruit_DHT.DHT11
         self.pin = 21
 
-    def UpdateRead(self):
-        self.humidity, self.temp = Adafruit_DHT.read_retry(self.sensor, self.pin)
+    def update_readings(self):
+        humidity, temp = Adafruit_DHT.read_retry(self.sensor, self.pin)
+        return {'humidity': humidity, 'temp': temp}
 
-        return {'humidity': self.humidity,'temp': self.temp}
-    
-     
 class UltraSensor:
-
     def __init__(self):
-        self.sensor = DistanceSensor(23,24)
+        self.sensor = DistanceSensor(echo=24, trigger=23)
 
-    def UpdateDist(self):
-        self.distance = self.sensor.distance
+    def update_distance(self):
+        distance = self.sensor.distance
         sleep(0.5)
-        return self.distance
-    
+        return distance
 
-
-class SolenoidLock():
-
+class SolenoidLock:
     def __init__(self):
         self.gpio = GPIO
         self.gpio.setwarnings(False)
-        self.setmode(self.gpio.BCM)
-        self.gpio.setup(18,self.gpio.OUT)
+        self.gpio.setmode(GPIO.BCM)
+        self.gpio.setup(18, GPIO.OUT)
 
-
-    def UpdateLock(self,status):
+    def update_lock(self, status):
         if status == 'Lock':
-            self.gpio.output(18,1)
+            self.gpio.output(18, 1)
             sleep(1)
-            return 'Locked Succesfully'
-        
+            return 'Locked Successfully'
         else:
-            self.gpio.output(18,0)
+            self.gpio.output(18, 0)
             sleep(1)
-            return 'UnLocked Succesfully'
+            return 'Unlocked Successfully'
+
+class Bulb:
+    def __init__(self, statuses):
+        self.pins = [17, 27, 22, 5, 18]
+        GPIO.setmode(GPIO.BCM)
+        for pin, status in zip(self.pins, statuses):
+            GPIO.setup(pin, GPIO.OUT)
+            GPIO.output(pin, GPIO.HIGH if status else GPIO.LOW)
