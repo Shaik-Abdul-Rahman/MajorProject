@@ -219,7 +219,8 @@
 
     <div class="container">
         <h2>Camera Feed</h2>
-        <img id="camera_feed" src="" alt="Camera Feed" style="width: 100%; height: auto;">
+        <!-- <img id="camera_feed" src="" alt="Camera Feed" style="width: 100%; height: auto;"> -->
+        <button onclick="camera_feed()">Camera Feed</button>
     </div>
 
     <div class="container">
@@ -240,6 +241,11 @@
         function registerRFid(){
             //alert('You will be redirected to RFID Registration Site.')
             window.location.href = '/rfid_register'
+        }
+
+        function camera_feed(){
+            alert('You will be redirected to camera feed.')
+            window.location.href = 'https://lionfish-intent-nicely.ngrok-free.app/camera_feed'
         }
 
         // Function to send status update to server
@@ -291,8 +297,8 @@
         imgElement.src = '/get_camera_feed?' + new Date().getTime(); // Add timestamp to URL to prevent caching
         }
 
-        updateCameraFeed();
-        setInterval(updateCameraFeed, 50000);
+       // updateCameraFeed();
+        //setInterval(updateCameraFeed, 50000);
         // Call updateTemperature function initially and every 5 seconds
         updateTemperature();
         setInterval(updateTemperature, 10000); // 10000 milliseconds = 10 seconds

@@ -187,7 +187,7 @@ def generate_frames():
 
 @app.route('/get_camera_feed')
 def get_camera_feed():
-    response = requests.get('https://hagfish-saved-killdeer.ngrok-free.app/camera_feed')
+    response = requests.get('https://lionfish-intent-nicely.ngrok-free.app/camera_feed')
 
     # Check if the request was successful
     if response.status_code == 200:
