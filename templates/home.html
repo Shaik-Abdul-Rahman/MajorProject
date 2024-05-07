@@ -10,27 +10,33 @@
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columns */
+            grid-gap: 20px; /* Gap between grid items */
             justify-content: center;
             align-items: center;
             height: 100vh;
         }
         .container {
-            width: 300px;
             background-color: #fff;
+            width: 90%;
+            height: 90%;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            padding-left: 40px;
         }
         h2 {
             text-align: center;
             margin-bottom: 20px;
         }
-        .appliance {
+        .appliance,
+        .temperature,
+        .camera {
             display: flex;
-            justify-content: space-between;
+            flex-direction: row;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .slider {
             display: flex;
@@ -92,42 +98,254 @@
             font-weight: bold;
             color: #333;
         }
+
+        .container button {
+            width: 200px; /* Set button width */
+            height: 60px; /* Set button height */
+            margin: 10px auto; /* Center button horizontally with some margin */
+            display: block; /* Make buttons appear vertically */
+            background-color: #4CAF50; /* Green accent color */
+            color: #fff; /* White text color */
+            border: none; /* Remove button border */
+            border-radius: 10px; /* Apply border radius */
+            font-size: 18px; /* Increase font size */
+            cursor: pointer; /* Add pointer cursor on hover */
+            transition: background-color 0.3s; /* Smooth transition for background color */
+        }
+
+        .container button:hover {
+            background-color: #45a049; /* Darker green color on hover */
+        }
+
+        .temperature {
+            background-color: #4CAF50; /* Green accent color for temperature container */
+            color: #fff; /* White text color */
+            width : 90%;
+            padding : 20px; /* Add padding for better appearance */
+            border-radius: 5px; /* Apply border radius */
+            text-align: center; /* Center text */
+            margin-bottom: 5px; /* Add some space at the bottom */
+            display: flex; /* Use flexbox to arrange sections horizontally */
+            flex-direction: column; /* Arrange sections vertically */
+            justify-content: center; /* Center content vertically */
+            align-items: center; /* Center content horizontally */
+        }
+
+        .temp-section,
+        .humidity-section {
+            padding: 10px; /* Add padding for spacing */
+            display: flex; /* Use flexbox to align content horizontally */
+            flex-direction: column; /* Arrange content vertically */
+            justify-content: center; /* Center content vertically */
+            align-items: center; /* Center content horizontally */
+            background-color: #388e3c;
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Control Appliance</h2>
+        <!-- Appliance 1 -->
         <div class="appliance">
             <div class="appliance-name">Living Room Light</div>
             <div class="slider">
                 <span class="text-off">Off</span>
-                <input type="checkbox" id="toggle" onchange="sendStatus()">
-                <label for="toggle"></label>
+                <input type="checkbox" id="toggle1" onchange="sendStatus(1)">
+                <label for="toggle1"></label>
             </div>
         </div>
-        <div id="status">Status: {{ status }}</div> <!-- Display the status here -->
+        <div id="status1">Status: {{ status1 }}</div>
+
+        <!-- Appliance 2 -->
+        <div class="appliance">
+            <div class="appliance-name">Kitchen Light</div>
+            <div class="slider">
+                <span class="text-off">Off</span>
+                <input type="checkbox" id="toggle2" onchange="sendStatus(2)">
+                <label for="toggle2"></label>
+            </div>
+        </div>
+        <div id="status2">Status: {{ status2 }}</div>
+
+        <!-- Appliance 3 -->
+        <div class="appliance">
+            <div class="appliance-name">Bedroom Light</div>
+            <div class="slider">
+                <span class="text-off">Off</span>
+                <input type="checkbox" id="toggle3" onchange="sendStatus(3)">
+                <label for="toggle3"></label>
+            </div>
+        </div>
+        <div id="status3">Status: {{ status3 }}</div>
+
+        <!-- Appliance 4 -->
+        <div class="appliance">
+            <div class="appliance-name">Bathroom Light</div>
+            <div class="slider">
+                <span class="text-off">Off</span>
+                <input type="checkbox" id="toggle4" onchange="sendStatus(4)">
+                <label for="toggle4"></label>
+            </div>
+        </div>
+        <div id="status4">Status: {{ status4 }}</div>
+
+        <!-- Appliance 5 -->
+        <div class="appliance">
+            <div class="appliance-name">Garage Light</div>
+            <div class="slider">
+                <span class="text-off">Off</span>
+                <input type="checkbox" id="toggle5" onchange="sendStatus(5)">
+                <label for="toggle5"></label>
+            </div>
+        </div>
+        <div id="status5">Status: {{ status5 }}</div>
     </div>
 
+
+    <div class="container">
+        <h2>Temperature</h2>
+        <div class="temperature">
+            <div class="temp-section">
+                <h3>Temperature</h3>
+                <p id="tempvalue"> {{ tempvalue }} </p>
+            </div>
+            <div class="humidity-section">
+                <h3>Humidity</h3>
+                <p id="humidityvalue">{{ humidity }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Camera Feed</h2>
+        <!-- <img id="camera_feed" src="" alt="Camera Feed" style="width: 100%; height: auto;"> -->
+        <button onclick="camera_feed()">Camera Feed</button>
+    </div>
+
+    <div class="container">
+        <h2>RFid Control</h2>
+        <button onclick="registerRFid()">Register RFid</button>
+        <button onclick="logout()">Logout</button>
+    </div>
+    
+
     <script>
-        function sendStatus() {
-            var isChecked = document.getElementById('toggle').checked;
+
+        //function to logout
+        function logout() {
+            alert("Do you want to logout.")
+            window.location.href = '/logout';
+        };
+
+        function registerRFid(){
+            //alert('You will be redirected to RFID Registration Site.')
+            window.location.href = '/rfid_register'
+        }
+
+        function camera_feed(){
+            alert('You will be redirected to camera feed.')
+            window.location.href = 'https://lionfish-intent-nicely.ngrok-free.app/camera_feed'
+        }
+
+        // Function to send status update to server
+        function sendStatus(applianceNumber) {
+            var isChecked = document.getElementById('toggle' + applianceNumber).checked;
             var status = isChecked ? 'ON' : 'OFF';
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/update_status', true);
+            xhr.open('POST', '/update_status_and_temperature', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     if (xhr.status === 200) {
                         var response = JSON.parse(xhr.responseText);
-                        // Update the status displayed on the webpage
-                        document.getElementById('status').innerText = 'Status: ' + response.status;
+                        document.getElementById('status' + applianceNumber).innerText = 'Status: ' + response.status;
                     } else {
                         console.error('Error updating status:', xhr.status);
                     }
                 }
             };
-            xhr.send(JSON.stringify({ status: status }));
+            xhr.send(JSON.stringify({ applianceNumber: applianceNumber, status: status }));
         }
+
+        // Function to update temperature
+        function updateTemperature() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/get_temperature', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        var temperature = data.temperature;
+                        var humidity = data.humidity;
+                        document.getElementById('tempvalue').innerHTML = temperature;
+                        document.getElementById('humidityvalue').innerHTML = humidity;
+                        //document.getElementById('temperature').innerHTML = 'Temperature: ' + temperature + '°C<br>Humidity: ' + humidity + '%';
+                    } else {
+                        console.error('Error fetching temperature:', xhr.status);
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+
+
+        
+        function updateCameraFeed() {
+        var imgElement = document.getElementById('camera_feed');
+        imgElement.src = '/get_camera_feed?' + new Date().getTime(); // Add timestamp to URL to prevent caching
+        }
+
+       // updateCameraFeed();
+        //setInterval(updateCameraFeed, 50000);
+        // Call updateTemperature function initially and every 5 seconds
+        updateTemperature();
+        setInterval(updateTemperature, 10000); // 10000 milliseconds = 10 seconds
+
+
+
+        window.onload = function() {
+        var initialStatus = "{{ status1 }}"; // Get initial status from the server-side template
+        var toggleCheckbox = document.getElementById('toggle1');
+        if (initialStatus === "ON") {
+            toggleCheckbox.checked = true;
+        } else {
+            toggleCheckbox.checked = false;
+        }
+
+        var initialStatus = "{{ status2 }}"; // Get initial status from the server-side template
+        var toggleCheckbox = document.getElementById('toggle2');
+        if (initialStatus === "ON") {
+            toggleCheckbox.checked = true;
+        } else {
+            toggleCheckbox.checked = false;
+        }
+
+        var initialStatus = "{{ status3 }}"; // Get initial status from the server-side template
+        var toggleCheckbox = document.getElementById('toggle3');
+        if (initialStatus === "ON") {
+            toggleCheckbox.checked = true;
+        } else {
+            toggleCheckbox.checked = false;
+        }
+
+        var initialStatus = "{{ status4 }}"; // Get initial status from the server-side template
+        var toggleCheckbox = document.getElementById('toggle4');
+        if (initialStatus === "ON") {
+            toggleCheckbox.checked = true;
+        } else {
+            toggleCheckbox.checked = false;
+        }
+
+        var initialStatus = "{{ status5 }}"; // Get initial status from the server-side template
+        var toggleCheckbox = document.getElementById('toggle5');
+        if (initialStatus === "ON") {
+            toggleCheckbox.checked = true;
+        } else {
+            toggleCheckbox.checked = false;
+        }
+    };
     </script>
 </body>
 </html>
