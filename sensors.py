@@ -2,6 +2,7 @@ import Adafruit_DHT
 from gpiozero import DistanceSensor
 from time import sleep
 from RPi import GPIO
+from mfrc522 import SimpleMFRC522
 
 class DhtSensor:
     def __init__(self):
@@ -45,3 +46,21 @@ class Bulb:
         for pin, status in zip(self.pins, statuses):
             GPIO.setup(pin, GPIO.OUT)
             GPIO.output(pin, GPIO.HIGH if status else GPIO.LOW)
+
+
+
+class rfid:
+
+    def __init___(self):
+        self.reader = SimpleMFRC522()
+
+    def register(self,username):
+        try:
+            print('place your tag')
+            self.id, self.text = self.reader.read()
+            self.reader.write(username)
+            print('written')
+            return {'update':'success','id':self.id}
+
+        finally:
+	        GPIO.cleanup()
