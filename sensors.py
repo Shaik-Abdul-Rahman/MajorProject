@@ -46,7 +46,11 @@ class Bulb:
         for pin, status in zip(self.pins, statuses):
             GPIO.setup(pin, GPIO.OUT)
             GPIO.output(pin, GPIO.HIGH if status else GPIO.LOW)
-
+    
+    def close_all(self):
+	GPIO.setmode(GPIO.BCM)
+        for pin in self.pins:
+            GPIO.output(pin,GPIO.LOW)
 
 
 class rfid:
