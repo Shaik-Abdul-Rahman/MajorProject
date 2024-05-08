@@ -57,8 +57,9 @@ class rfid:
     def register(self,username):
         try:
             print('place your tag')
-            self.id, self.text = self.reader.read()
-            self.reader.write(username)
+            reader = SimpleMFRC522()
+            self.id, self.text = reader.read()
+            reader.write(username)
             print('written')
             return {'update':'success','id':self.id}
 
