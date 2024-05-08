@@ -53,7 +53,7 @@ def camera_feed():
 @app.route('/card_registration',methods=['POST'])
 def detail_confirmation():
     data = request.json
-    
+
     username = data.get('username')
     password = data.get('password')
 
@@ -68,11 +68,11 @@ def detail_confirmation():
         conn.close()
         return jsonify({'registration':'success','id':register['id']})
     else:
-        return jsonify({'confirmation':'failure'})
+        return jsonify({'registration':'failure'})
 
 
     
     
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)

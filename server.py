@@ -9,7 +9,7 @@ import requests
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 current_temperature = 100
-URL = 'https://lionfish-intent-nicely.ngrok-free.app/camera_feed'
+URL = 'https://lionfish-intent-nicely.ngrok-free.app'
 
 def init_status(user):
     conn = get_db_connection()
@@ -117,6 +117,7 @@ def login():
         conn.close()
         if user:
             session['username'] = username
+            session['password'] = password
             active_status()
             return redirect('/home')
         else:
@@ -231,8 +232,19 @@ def detail_confirmation():
 
 @app.route('/confirm_card_registration',methods = ['GET'])
 def card_confirmation():
-
-    return jsonify({'registration':'success'})
+    detail = {'username':session['username'],'password':session['password']}
+    
+    try:
+        response = requests.post(URL+'/card_registration',json=detail)
+        if response.status_code == 200:
+            data = response.json
+            reg = data.get('registration')
+            id = data.get('id')
+            print(id)
+            return jsonify({'registration':reg})
+    
+    except Exception as e:
+        return jsonify({'registration': str(e)})
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)
