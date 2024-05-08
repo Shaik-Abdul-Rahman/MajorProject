@@ -235,17 +235,29 @@ def detail_confirmation():
 def card_confirmation():
     detail = {'username':session['username'],'password':session['password']}
     
-    try:
-        response = requests.post(URL+'/card_registration',json=detail)
-        if response.status_code == 200:
-            data = response.json
-            reg = data.get('registration')
-            id = data.get('id')
-            print(id)
-            return jsonify({'registration':reg})
-    
-    except Exception as e:
-        return jsonify({'registration': str(e)})
-    
+        
+    response = requests.post(URL+'/card_registration',json=detail)
+    if response.status_code == 200:
+        data = response.json()
+        reg = data.get('registration')
+        id = data.get('id')
+        print_data(id)
+
+        time.sleep(5)
+        if id:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute('UPDATE users SET rfid = %s WHERE username = %s',(id,session['username']))
+            conn.commit()
+            conn.close()
+            return jsonify({'registration':"success"})
+        
+        else:
+            return jsonify({'registration':"failure"})
+
+def print_data(data):
+    print(data)
+
+    time.sleep(5)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)

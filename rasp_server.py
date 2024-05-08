@@ -62,7 +62,7 @@ def detail_confirmation():
     register = rfid_register.register(username)
     if register:
        
-        return jsonify({'registration':'success','id':register['id']})
+        return jsonify({'registration':"success",'id':register['id']})
     else:
         return jsonify({'registration':'failure'})
 

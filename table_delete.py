@@ -14,19 +14,16 @@ def delete_users_table():
         # Create a cursor object to execute SQL queries
         cursor = conn.cursor()
 
-        # Define the SQL statement to drop the table
-        drop_table_query = "DROP TABLE IF EXISTS users"
-
-        # Execute the SQL statement
-        cursor.execute(drop_table_query)
+        alter_query = "ALTER TABLE users MODIFY rfid VARCHAR(20);"  # Adjust the size as needed
+        cursor.execute(alter_query)
 
         # Commit the changes to the database
         conn.commit()
 
-        print("Table 'users' deleted successfully")
+        print("Column size adjusted successfully")
 
     except mysql.connector.Error as error:
-        print("Failed to delete table: {}".format(error))
+        print("Failed to adjust column size: {}".format(error))
 
     finally:
         # Close the cursor and connection
