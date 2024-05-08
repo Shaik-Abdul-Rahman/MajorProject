@@ -7,7 +7,7 @@ from mfrc522 import SimpleMFRC522
 class DhtSensor:
     def __init__(self):
         self.sensor = Adafruit_DHT.DHT11
-        self.pin = 21
+        self.pin = 17
 
     def update_readings(self):
         humidity, temp = Adafruit_DHT.read_retry(self.sensor, self.pin)
@@ -41,7 +41,7 @@ class SolenoidLock:
 
 class Bulb:
     def __init__(self, statuses):
-        self.pins = [17, 27, 22, 5, 18]
+        self.pins = [5,6,13,19,26]
         GPIO.setmode(GPIO.BCM)
         for pin, status in zip(self.pins, statuses):
             GPIO.setup(pin, GPIO.OUT)

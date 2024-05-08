@@ -32,7 +32,7 @@ def email_conn():
     msg['From'] = sender_email
     msg['To'] = receiver_email
     msg['Subject'] = 'intrusion detected'
-    message = f'CLICK ON THIS LINK TO SEE THE LIVE FEED/n{URL}+/camera_feed'
+    message = f'CLICK ON THIS LINK TO SEE THE LIVE FEED \n{URL}+/camera_feed'
 
     # Attach message
     msg.attach(MIMEText(message, 'plain'))
@@ -65,5 +65,5 @@ def main():
 
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == '__main__': main()
+ 
