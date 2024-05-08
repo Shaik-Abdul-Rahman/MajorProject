@@ -73,7 +73,7 @@ class rfid:
             return {'update':'success','id':self.id}
 
         finally:
-            GPIO.cleanup()
+            pass
     def read(self):
         try:
             print('Place your tag.')

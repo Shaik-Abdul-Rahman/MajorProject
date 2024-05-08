@@ -105,13 +105,18 @@ def solenoid_check():
 
 
 def button_pressed(channel):
+    print('button pressed')
     rfid_ = rfid()
     global data
+    
     data = rfid_.read()
-
+    print(data)
+    print(data['username'])
+    username = data['username']
+    print(username)
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM users WHERE username = %s',(data['username'],))
+    cursor.execute('SELECT * FROM users WHERE username = %s',(username,))
     status = cursor.fetchone()
     details = status[3:8]
     
@@ -137,27 +142,30 @@ def init_rfid():
 
 
 def intrusion_detect():
-    usensor = UltraSensor()
-    dist = usensor.update_distance()
-    while True:
-        
-        dist = usensor.update_distance()
-        try:
-            if dist < 0.5:
-                time.sleep(10)
-                dist = usensor.update_distance()
-                if dist < 0.9:
-                    capture = capture_img()
-                    if capture:
-                        email_conn()
-        finally:
-            gpio.cleanup()
+    
+    time.sleep(2)
+   
+    try:
+        while True:
+            usensor = UltraSensor()
+            dist = usensor.update_distance()
+            print(dist)
+#            if dist < 0.5:
+ #               time.sleep(10)
+  #              dist = usensor.update_distance()
+   #             if dist < 0.9:
+    #                capture = capture_img()
+     #               if capture:
+      #                  email_conn()
+    except:
+        pass
 
 
 def app_update():
      global data
      while True:
-        if data['username']:
+        time.sleep(5)
+        if data:
             conn = get_db_connection()
             cursor = conn.cursor()
             cursor.execute('SELECT * FROM users WHERE username = %s',(data['username'],))
@@ -181,11 +189,11 @@ def main1():
 
     thread1.start()
     thread2.start()
-    thread3.start()
+    #thread3.start()
 
     thread1.join()
     thread2.join()
-    thread3.join()
+    app_update()
 
     print('both functions completed')
 
