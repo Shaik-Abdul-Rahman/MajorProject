@@ -4,8 +4,11 @@ from time import sleep
 from RPi import GPIO
 from mfrc522 import SimpleMFRC522
 
+URL = 'https://lionfish-intent-nicely.ngrok-free.app'
+
 class DhtSensor:
     def __init__(self):
+
         self.sensor = Adafruit_DHT.DHT11
         self.pin = 17
 
@@ -41,17 +44,19 @@ class SolenoidLock:
 
 class Bulb:
     def __init__(self, statuses):
-        self.pins = [5,6,13,19,26]
+        self.pins = [17, 27, 22, 5, 18]
         GPIO.setmode(GPIO.BCM)
         for pin, status in zip(self.pins, statuses):
             GPIO.setup(pin, GPIO.OUT)
             GPIO.output(pin, GPIO.HIGH if status else GPIO.LOW)
-    
+
     def close_all(self):
-	GPIO.setmode(GPIO.BCM)
+        GPIO.setmode(GPIO.BCM)
         for pin in self.pins:
             GPIO.output(pin,GPIO.LOW)
 
+    def unlock_lock(self):
+        GPIO.output(18,GPIO.HIGH)
 
 class rfid:
 
@@ -68,6 +73,13 @@ class rfid:
             return {'update':'success','id':self.id}
 
         finally:
-	        GPIO.cleanup()
-    def close():
-        GPIO.cleanup()
+            GPIO.cleanup()
+    def read(self):
+        try:
+            print('Place your tag.')
+            reader = SimpleMFRC522()
+            self.id, self.text = reader.read()
+            print('successfully read.')
+            return {'id':self.id,'username':self.text}
+        finally:
+            GPIO.cleanup()
