@@ -57,15 +57,11 @@ def detail_confirmation():
     username = data.get('username')
     password = data.get('password')
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
 
     rfid_register = rfid()
     register = rfid_register.register(username)
     if register:
-        cursor.execute('UPDATE users SET rfid = %s WHERE username = %s and password = %s',(register['id'],username,password))
-        conn.commit()
-        conn.close()
+       
         return jsonify({'registration':'success','id':register['id']})
     else:
         return jsonify({'registration':'failure'})

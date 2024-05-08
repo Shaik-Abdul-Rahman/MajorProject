@@ -134,6 +134,7 @@ def signup():
         if user_exists:
             return render_template('signup.html', error='The username already exists')
         session['username'] = username
+        session['password'] = password
         return redirect('/home')
     return render_template('signup.html')
 
