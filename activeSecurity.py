@@ -9,8 +9,6 @@ import os
 import RPi.GPIO as gpio
 
 
-URL = 'HELLO HOW ARE YOU'
-
 
 def capture_img():
     
@@ -103,5 +101,6 @@ def solenoid_check():
 	
 
 
-solenoid_check()
+
+
 
