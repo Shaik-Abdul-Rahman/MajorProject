@@ -1,5 +1,5 @@
-from sensors import *
-import cv2
+#from sensors import URL
+from picamera import PiCamera
 import time
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -7,23 +7,17 @@ from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 import os
 
+URL = 'HELLO HOW ARE YOU'
+
 
 def capture_img():
-    camera = cv2.VideoCapture(0)
-    if not camera.isOpened():
-        print('Camera not detected.')
-        camera.release()
-        return False
     
-    ret, frame = camera.read()
+    with PiCamera as camera:
+        camera.resolution(800,800)
+        time.sleep(4)
+        camera.capture('intrusion.jpg')
 
-    if not ret:
-        print('Not able to read the frame')
-        camera.release()
-        return False
-    
-    camera.release()
-    cv2.imwrite('image.jpg',frame)
+
     print('Image captured successfully.')
     return True 
    
@@ -31,25 +25,42 @@ def capture_img():
 def email_conn():
     sender_email = "mohammad.ahmed1774@gmail.com"
     receiver_email = "mohammad.ahmed1774@gmail.com"
-    password = ""
+    password = "kehx negx kqvn luhw"
 
     # Create the email message
-    message = MIMEMultipart()
-    message['From'] = sender_email
-    message['To'] = receiver_email
-    message['Subject'] = "Intrusion Detection"
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+    msg['Subject'] = 'intrusion detected'
+    message = f'CLICK ON THIS LINK TO SEE THE LIVE FEED/n{URL}+/camera_feed'
 
-    # Add body to email
-    body = ""
-    message.attach(MIMEText(body, 'plain'))
+    # Attach message
+    msg.attach(MIMEText(message, 'plain'))
+
+    with open('intrusion.jpg', 'rb') as f:
+        img_data = f.read()
+        image = MIMEImage(img_data, name='intrusion.jpg')
+        msg.attach(image)
+
+    # Connect to the SMTP server
+    with smtplib.SMTP('smtp.gmail.com', 587) as server:
+        server.starttls()
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email, msg.as_string())
+
+    print('mail sent')
 
 def main():
-    ultra_dist = UltraSensor()
-    distance = ultra_dist.update_distance()
-    if distance> 0.5:
+    #ultra_dist = UltraSensor()
+    #distance = ultra_dist.update_distance()
+    distance = 0.2
+    if distance< 0.5:
         time.sleep(4)
         image_captured = capture_img()
-        while not image_captured:
+        email_conn()
+        
+
+
 
 
 
