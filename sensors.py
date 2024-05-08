@@ -65,3 +65,5 @@ class rfid:
 
         finally:
 	        GPIO.cleanup()
+    def close()
+        GPIO.cleanup()
