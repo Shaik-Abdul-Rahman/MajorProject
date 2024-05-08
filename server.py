@@ -9,7 +9,7 @@ import requests
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 current_temperature = 100
-
+URL = 'https://lionfish-intent-nicely.ngrok-free.app/camera_feed'
 
 def init_status(user):
     conn = get_db_connection()
@@ -61,7 +61,8 @@ def create_table():
         app5 INT DEFAULT 0,
         active INT DEFAULT 0,
         temp DECIMAL(10,2) DEFAULT 27.50,
-        humidity DECIMAL DEFAULT 30.50
+        humidity DECIMAL DEFAULT 30.50,
+        rfid INT DEFAULT 0
     )''')
     conn.commit()
     conn.close()
@@ -199,6 +200,39 @@ def get_camera_feed():
     else:
         # Return an error message if the request was not successful
         return 'Error: Unable to fetch camera feed from the external server'
+    
+@app.route('/rfid_register')
+def rfid_register():
+    return render_template('rfid_register.html')
+
+@app.route('/detail_confirmation',methods=['POST'])
+def detail_confirmation():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM users WHERE username = %s and password = %s',(username,password))
+    user = cursor.fetchone()
+    #data = {'username': username, 'password': password}
+    # try:
+
+    #     response = requests.post(URL,json=data)
+
+    #     if response.status_code == 200:
+    if user:
+        return jsonify({'confirmation': 'success'})
+    else:
+        return jsonify({'confirmation': 'failure'})
+
+    
+
+@app.route('/confirm_card_registration',methods = ['GET'])
+def card_confirmation():
+
+    return jsonify({'registration':'success'})
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)
