@@ -176,19 +176,18 @@ def app_update():
 def main1():
     thread1 = threading.Thread(target=init_rfid)
     thread2 = threading.Thread(target=intrusion_detect)
-    thread3 = threading.Thread(target = app_update)
+    thread3 = threading.Thread(target = app_update) 
 
-    while True:
-        
-        thread1.start()
-        thread2.start()
-        thread3.start()
 
-        thread1.join()
-        thread2.join()
-        thread3.join()
+    thread1.start()
+    thread2.start()
+    thread3.start()
 
-        print('both functions completed')
+    thread1.join()
+    thread2.join()
+    thread3.join()
+
+    print('both functions completed')
 
 
 if __name__ == '__main__':
