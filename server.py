@@ -97,10 +97,11 @@ def user_signup(username, password):
 def temp_update():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM users WHERE username = %s',(session['username'],))
+    cursor.execute('SELECT temp,humidity FROM users WHERE username = %s',(session['username'],))
     user = cursor.fetchone()
     conn.close()
-    return user[-2:]
+    print(user)
+    return user
 create_table()
 
 # Route for the login page

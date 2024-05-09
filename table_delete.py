@@ -14,12 +14,13 @@ def delete_users_table():
         # Create a cursor object to execute SQL queries
         cursor = conn.cursor()
 
-        alter_query = "ALTER TABLE users MODIFY rfid VARCHAR(20);"  # Adjust the size as needed
-        cursor.execute(alter_query)
+          # Adjust the size as needed
+        cursor.execute('SELECT * FROM users WHERE rfid = %s',(633601862305,))
 
+        data = cursor.fetchone()
         # Commit the changes to the database
-        conn.commit()
-
+        #conn.commit()
+        print(data[3:8])
         print("Column size adjusted successfully")
 
     except mysql.connector.Error as error:
