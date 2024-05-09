@@ -18,15 +18,21 @@ class DhtSensor:
 
 class UltraSensor:
     def __init__(self):
-        self.sensor = DistanceSensor(echo=24, trigger=23)
-
-    def update_distance(self):
+        #self.sensor = DistanceSensor(echo=24, trigger=23)
+        self.gpio = GPIO
+        self.gpio.setwarnings(False)
+        self.gpio.setmode(self.gpio.BCM)
+    def update_dist(self):
         try:
-            distance = self.sensor.distance
+            self.sensor2 = DistanceSensor(echo=24, trigger=23)
+            distance = self.sensor2.distance
             sleep(0.5)
+            self.gpio.cleanup()
             return distance
         except Exception as e:
             print('Error Occured in reading ultrasonic sensor : ',e)
+        
+        
 
 class SolenoidLock:
     def __init__(self):

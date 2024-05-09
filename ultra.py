@@ -1,7 +1,9 @@
 from sensors import UltraSensor
-
-ult = UltraSensor()
+import time
 
 while True:
-	data = ult.update_distance()
-	print(data)
+    time.sleep(2)
+    ult = UltraSensor()
+    dist = ult.update_dist()
+    print(dist)
+

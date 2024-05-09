@@ -60,8 +60,11 @@ def email_conn():
 
 def intrusion_detect():
     try:
-        usensor = UltraSensor()
+       
         while True:
+            time.sleep(2)
+            usensor = UltraSensor()  
+            #time.sleep(2)
             dist = usensor.update_distance()
             print(dist)
             if dist < 0.5:
