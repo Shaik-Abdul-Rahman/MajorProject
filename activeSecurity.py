@@ -118,12 +118,16 @@ def button_pressed(channel):
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE rfid = %s',(data['id'],))
     status = cursor.fetchone()
-    details = status[3:8]
-    print(status)
-    bulb_ = Bulb(details)
-    bulb_.unlock_lock()
-    print('unlocked')
     conn.close()
+    #details = status[3:8]
+    if status:
+        print(status)
+        bulb_ = Bulb(details[3:8])
+        earlier_status = bulb_.change_status()
+        print('Unlocked' if earlier_status == GPIO.LOW else 'Locked')
+    else:
+         print('Unregister User')
+    
 
 
 def init_rfid():
@@ -147,8 +151,9 @@ def intrusion_detect():
     time.sleep(2)
    
     try:
+        usensor = UltraSensor()
         while True:
-            usensor = UltraSensor()
+
             dist = usensor.update_distance()
             print(dist)
             if dist < 0.5:
@@ -172,13 +177,13 @@ def app_update():
     print('starting app update')
     while True:
         time.sleep(5)
-        if data:
+        if data['id']:
             conn = get_db_connection()
             cursor = conn.cursor()
             cursor.execute('SELECT * FROM users WHERE rfid = %s',(data['id'],))
             status = cursor.fetchone()
-            details = status[3:8]
-            bulb_ = Bulb(details)
+            #details = status[3:8]
+            bulb_ = Bulb(status[3:8])
             temp_sensor = DhtSensor()
             temp_readings = temp_sensor.update_readings()
             cursor.execute('UPDATE users SET temp = %s, humidity = %s WHERE rfid = %s',(temp_readings['temperature'],temp_readings['humidity'],data['id']))

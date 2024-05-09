@@ -21,9 +21,12 @@ class UltraSensor:
         self.sensor = DistanceSensor(echo=24, trigger=23)
 
     def update_distance(self):
-        distance = self.sensor.distance
-        sleep(0.5)
-        return distance
+        try:
+            distance = self.sensor.distance
+            sleep(0.5)
+            return distance
+        except Exception as e:
+            print('Error Occured in reading ultrasonic sensor : ',e)
 
 class SolenoidLock:
     def __init__(self):
@@ -45,20 +48,25 @@ class SolenoidLock:
 class Bulb:
     def __init__(self, statuses):
         self.pins = [17, 27, 22, 5, 18]
+        self.statuses = statuses
         GPIO.setmode(GPIO.BCM)
-        for pin, status in zip(self.pins, statuses):
+        for pin, status in zip(self.pins[0:4], self.statuses[0:4]):
+            GPIO.setup(pin, GPIO.OUT)
+            GPIO.output(pin, GPIO.HIGH if status else GPIO.LOW)
+    def update_system(self,new_values):
+        for pin, status in zip(self.pins, new_values):
             GPIO.setup(pin, GPIO.OUT)
             GPIO.output(pin, GPIO.HIGH if status else GPIO.LOW)
 
     def close_all(self):
-        GPIO.setmode(GPIO.BCM)
         for pin in self.pins:
-            GPIO.output(pin,GPIO.LOW)
+            GPIO.output(pin, GPIO.LOW)
 
-    def unlock_lock(self):
-    
-        GPIO.output(18,GPIO.LOW)
-        print('unlocked from oops')
+    def change_status(self):
+        read = GPIO.input(18)
+
+        GPIO.output(18, GPIO.HIGH if read == GPIO.LOW else GPIO.LOW)
+        print('Unlocked')
 
 class rfid:
 
@@ -75,7 +83,7 @@ class rfid:
             return {'update':'success','id':self.id}
 
         finally:
-            pass
+            GPIO.cleanup()
     def read(self):
         try:
             print('Place your tag.')
@@ -86,4 +94,4 @@ class rfid:
 
             return {'id':self.id,'username':self.text}
         finally:
-            GPIO.cleanup()
+            pass
