@@ -56,7 +56,7 @@ class Bulb:
         self.pins = [17, 27, 22, 5, 18]
         self.statuses = statuses
         GPIO.setmode(GPIO.BCM)
-        for pin, status in zip(self.pins[0:4], self.statuses[0:4]):
+        for pin, status in zip(self.pins, self.statuses):
             GPIO.setup(pin, GPIO.OUT)
             GPIO.output(pin, GPIO.HIGH if status else GPIO.LOW)
     def update_system(self,new_values):
@@ -69,10 +69,13 @@ class Bulb:
             GPIO.output(pin, GPIO.LOW)
 
     def change_status(self):
+        GPIO.setup(18,GPIO.OUT)
         read = GPIO.input(18)
 
         GPIO.output(18, GPIO.HIGH if read == GPIO.LOW else GPIO.LOW)
-        print('Unlocked')
+        print('Unlocked' if read == GPIO.LOW else 'Locked')
+    def unlock_lock(self):
+        GPIO.output(18,GPIO.HIGH)
 
 class rfid:
 
@@ -100,4 +103,4 @@ class rfid:
 
             return {'id':self.id,'username':self.text}
         finally:
-            pass
+            GPIO.cleanup()

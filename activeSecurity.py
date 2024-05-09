@@ -99,7 +99,7 @@ def solenoid_check():
 	except KeyboardInterrupt:
 		pass
 
-	finally:
+	finally :
 		gpio.cleanup()
             
 
@@ -122,7 +122,7 @@ def button_pressed(channel):
     #details = status[3:8]
     if status:
         print(status)
-        bulb_ = Bulb(details[3:8])
+        bulb_ = Bulb(status[3:8])
         earlier_status = bulb_.change_status()
         print('Unlocked' if earlier_status == GPIO.LOW else 'Locked')
     else:
@@ -134,7 +134,6 @@ def init_rfid():
     BUTTON_PIN = 21
     gpio.setmode(gpio.BCM)
     gpio.setup(BUTTON_PIN,gpio.IN,pull_up_down = gpio.PUD_UP)
-    
     try:
         gpio.add_event_detect(BUTTON_PIN,gpio.FALLING,callback = button_pressed,bouncetime = 200)
         print('watitin')
@@ -142,8 +141,8 @@ def init_rfid():
              time.sleep(1)
     except KeyboardInterrupt:
         pass
-   
-    
+    finally :
+        gpio.cleanup()
 
 
 def intrusion_detect():
@@ -176,8 +175,8 @@ def app_update():
     global data
     print('starting app update')
     while True:
-        time.sleep(5)
-        if data['id']:
+        time.sleep(2)
+        if data:
             conn = get_db_connection()
             cursor = conn.cursor()
             cursor.execute('SELECT * FROM users WHERE rfid = %s',(data['id'],))
@@ -203,7 +202,7 @@ def main1():
 
 
     thread1.start()
-    thread2.start()
+#    thread2.start()
     thread3.start()
 
 

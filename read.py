@@ -2,7 +2,7 @@ import RPi.GPIO as gpio
 from mfrc522 import SimpleMFRC522
 #from sensors import *
 
-
+#gpio.cleanup()
 reader = SimpleMFRC522()
 
 try:
