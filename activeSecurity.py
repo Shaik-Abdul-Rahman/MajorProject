@@ -116,12 +116,13 @@ def button_pressed(channel):
     print(username)
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM users WHERE username = %s',(username,))
+    cursor.execute('SELECT * FROM users WHERE rfid = %s',(data['id'],))
     status = cursor.fetchone()
     details = status[3:8]
-    
+    print(status)
     bulb_ = Bulb(details)
     bulb_.unlock_lock()
+    print('unlocked')
     conn.close()
 
 
@@ -129,15 +130,15 @@ def init_rfid():
     BUTTON_PIN = 21
     gpio.setmode(gpio.BCM)
     gpio.setup(BUTTON_PIN,gpio.IN,pull_up_down = gpio.PUD_UP)
-    gpio.add_event_detect(BUTTON_PIN,gpio.FALLING,callback = button_pressed,bouncetime = 200)
+    
     try:
+        gpio.add_event_detect(BUTTON_PIN,gpio.FALLING,callback = button_pressed,bouncetime = 200)
         print('watitin')
         while True:
              time.sleep(1)
     except KeyboardInterrupt:
         pass
-    finally:
-         gpio.cleanup()
+   
     
 
 
@@ -150,34 +151,43 @@ def intrusion_detect():
             usensor = UltraSensor()
             dist = usensor.update_distance()
             print(dist)
-#            if dist < 0.5:
- #               time.sleep(10)
-  #              dist = usensor.update_distance()
-   #             if dist < 0.9:
-    #                capture = capture_img()
-     #               if capture:
-      #                  email_conn()
+            if dist < 0.5:
+                print('intrusion detected starting countdown')
+                time.sleep(5)
+                dist = usensor.update_distance()
+                if dist < 0.9:
+                    capture = capture_img()
+                    if capture:
+                        email_conn()
+            else:
+                print('no person')
+                #intrusion_detect()
+
     except:
-        pass
+        intrusion_detect()
 
 
 def app_update():
-     global data
-     while True:
+    global data
+    print('starting app update')
+    while True:
         time.sleep(5)
         if data:
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute('SELECT * FROM users WHERE username = %s',(data['username'],))
+            cursor.execute('SELECT * FROM users WHERE rfid = %s',(data['id'],))
             status = cursor.fetchone()
             details = status[3:8]
             bulb_ = Bulb(details)
             temp_sensor = DhtSensor()
             temp_readings = temp_sensor.update_readings()
-            cursor.execute('UPDATE users SET temp = %s and humidity = %s WHERE username = %s',(temp_readings['temperature'],temp_readings['humidity'],data['username']))
+            cursor.execute('UPDATE users SET temp = %s, humidity = %s WHERE rfid = %s',(temp_readings['temperature'],temp_readings['humidity'],data['id']))
+            conn.commit()
             conn.close()
+            print(temp_readings)
         else:
              print('Waiting for user to enter.')
+             
 
 
 
@@ -189,11 +199,11 @@ def main1():
 
     thread1.start()
     thread2.start()
-    #thread3.start()
+    thread3.start()
 
     thread1.join()
     thread2.join()
-    app_update()
+    thread3.join()
 
     print('both functions completed')
 

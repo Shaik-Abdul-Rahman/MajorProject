@@ -14,7 +14,7 @@ class DhtSensor:
 
     def update_readings(self):
         humidity, temp = Adafruit_DHT.read_retry(self.sensor, self.pin)
-        return {'humidity': humidity, 'temp': temp}
+        return {'humidity': humidity, 'temperature': temp}
 
 class UltraSensor:
     def __init__(self):
@@ -56,7 +56,9 @@ class Bulb:
             GPIO.output(pin,GPIO.LOW)
 
     def unlock_lock(self):
-        GPIO.output(18,GPIO.HIGH)
+    
+        GPIO.output(18,GPIO.LOW)
+        print('unlocked from oops')
 
 class rfid:
 
@@ -80,6 +82,8 @@ class rfid:
             reader = SimpleMFRC522()
             self.id, self.text = reader.read()
             print('successfully read.')
+            print(type(self.id))
+
             return {'id':self.id,'username':self.text}
         finally:
             GPIO.cleanup()
