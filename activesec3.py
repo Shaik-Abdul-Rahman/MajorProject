@@ -4,6 +4,74 @@ import RPi.GPIO as gpio
 import time
 from mfrc522 import SimpleMFRC522
 from mysql import connector
+from picamera import PiCamera
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+import os
+
+
+
+
+
+
+
+def capture_img():
+    
+    with PiCamera() as camera:
+        camera.resolution=(320,320)
+        time.sleep(4)
+        camera.capture('intrusion.jpg')
+
+
+    print('Image captured successfully.')
+    return True 
+   
+
+def email_conn():
+    sender_email = "mohammad.ahmed1774@gmail.com"
+    receiver_email = "mohammad.ahmed1774@gmail.com"
+    password = "kehx negx kqvn luhw"
+
+    # Create the email message
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+    msg['Subject'] = 'intrusion detected'
+    message = f'CLICK ON THIS LINK TO SEE THE LIVE FEED/n{URL}+/camera_feed'
+
+    # Attach message
+    msg.attach(MIMEText(message, 'plain'))
+
+    with open('intrusion.jpg', 'rb') as f:
+        img_data = f.read()
+        image = MIMEImage(img_data, name='intrusion.jpg')
+        msg.attach(image)
+
+    # Connect to the SMTP server
+    with smtplib.SMTP('smtp.gmail.com', 587) as server:
+        server.starttls()
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email, msg.as_string())
+
+    print('mail sent')
+
+
+
+
+def motion_sensor():
+     
+
+
+
+
+
+
+
+
+
+
 
 gpio.setwarnings(False)
 # Set up GPIO mode
