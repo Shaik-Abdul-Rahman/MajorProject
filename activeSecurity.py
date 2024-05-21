@@ -9,6 +9,7 @@ import os
 import RPi.GPIO as gpio
 from mysql import connector
 import threading
+from mfrc522 import SimpleMFRC522
 
 
 data = {}
@@ -209,7 +210,53 @@ def main1():
     print('both functions completed')
 
 
-if __name__ == '__main__':
-    main1()
+#if __name__ == '__main__':
+ #   main1()
 
         
+
+
+
+
+data = {}
+
+def read_rfid():
+    reader = SimpleMFRC522()
+    
+    try:
+        print('place your card')
+        id, text = reader.read()
+        data['id'] = id
+        data['username'] = text
+        print(id,text)
+        
+    finally:
+        gpio.cleanup()
+    
+    #print(username)
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        status = 1
+        cursor.execute('UPDATE users SET app5 = %s WHERE rfid = %s',(status,id))
+        conn.commit()
+        conn.close()
+        
+        time.sleep(1)
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM users WHERE rfid = %s',(data['id'],))
+        status = cursor.fetchone()
+        conn.close()
+        
+    #details = status[3:8]
+        if status:
+            print(status)
+            bulb_ = Appliances(status[3:8])
+            #earlier_status = bulb_.change_status()
+            print('Unlocked')
+        else:
+            print('Unregister User')
+
+
+        
+read_rfid()        

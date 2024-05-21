@@ -22,12 +22,14 @@ class UltraSensor:
         self.gpio = GPIO
         self.gpio.setwarnings(False)
         self.gpio.setmode(self.gpio.BCM)
+        self.sensor2 = None
     def update_dist(self):
         try:
-            self.sensor2 = DistanceSensor(echo=24, trigger=23)
+            if self.sensor2 is None:
+                self.sensor2 = DistanceSensor(echo=24, trigger=23)
             distance = self.sensor2.distance
             sleep(0.5)
-            self.gpio.cleanup()
+    #        self.gpio.cleanup()
             return distance
         except Exception as e:
             print('Error Occured in reading ultrasonic sensor : ',e)
@@ -50,6 +52,19 @@ class SolenoidLock:
             self.gpio.output(18, 0)
             sleep(1)
             return 'Unlocked Successfully'
+
+class Appliances:
+    def __init__(self, status):
+        self.pins = [17,27,22,5,18]
+        self.status = status
+        GPIO.setmode(GPIO.BCM)
+        try:
+            for pin, stat in zip(self.pins, self.status):
+                GPIO.setup(pin,GPIO.OUT)
+                GPIO.output(pin,GPIO.HIGH if stat else GPIO.LOW)
+        finally:
+            #GPIO.cleanup()
+            print('appliances restored succesfully.')
 
 class Bulb:
     def __init__(self, statuses):
@@ -80,7 +95,8 @@ class Bulb:
 class rfid:
 
     def __init___(self):
-        self.reader = SimpleMFRC522()
+        #self.reader = SimpleMFRC522()
+        pass
 
     def register(self,username):
         try:
@@ -97,7 +113,9 @@ class rfid:
         try:
             print('Place your tag.')
             reader = SimpleMFRC522()
+            print('testing1')
             self.id, self.text = reader.read()
+            print('testing2')
             print('successfully read.')
             print(type(self.id))
 
