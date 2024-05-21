@@ -1,8 +1,11 @@
+from sensors import Appliances
 import threading
 import RPi.GPIO as gpio
 import time
 from mfrc522 import SimpleMFRC522
+from mysql import connector
 
+gpio.setwarnings(False)
 # Set up GPIO mode
 gpio.setmode(gpio.BCM)
 
@@ -14,6 +17,18 @@ wait_for_button = True  # Flag to control waiting for button press
 # Set up button pin
 gpio.setup(button_pin, gpio.IN, pull_up_down=gpio.PUD_DOWN)
 
+
+
+
+def get_db_connection():
+    conn = connector.connect(
+        host='up-us-sjo1-mysql-1.db.run-on-seenode.com',
+        port=11550,
+        user='db-hlx8d21axvv7',
+        password='QPDMAVVtbc39RG0l4R0ytGsO',
+        database='db-hlx8d21axvv7'
+    )
+    return conn
 # Function to initialize RFID reader
 def initialize_reader():
     return SimpleMFRC522()
@@ -53,14 +68,17 @@ def read_rfid(reader):
         print(f'Error reading RFID card: {e}')
     finally:
         gpio.cleanup(rfid_pins)
+        print('gpio cleaned up')
 
 # Function to handle button press event
 def button_press(channel):
-    global wait_for_button
+    global wait_for_button,reader
     if wait_for_button:
         wait_for_button = False  # Allow RFID reading
         read_rfid(reader)
-        wait_for_button = True  # Wait for the next button press
+        wait_for_button = True
+        reader = initialize_reader()
+        # Wait for the next button press
 
 # RFID thread function
 def rfid_thread():

@@ -66,9 +66,9 @@ def email_conn():
     
 
 
-def button_press(channel):
+def button_press(channel,reader):
     data = {}
-    global reader
+    #global reader
     global rfid_pins, button_pin
     
     reader = SimpleMFRC522()
@@ -117,18 +117,16 @@ def button_press(channel):
             
 
 def rfid_thread():
-    gpio.setmode(gpio.BCM)
-    global button_pin
-    button_pin = 21
+    global button_pin, rfid_pins
     gpio.setup(button_pin, gpio.IN, pull_up_down = gpio.PUD_DOWN)
     
-    global rfid_pins
-    rfid_pins = [8,10,9,11,22]
+    reader = SimpleMFRC522()
+    
     
     
     print('waiting for button press')
     
-    gpio.add_event_detect(button_pin, gpio.RISING, callback = button_press,bouncetime = 200)
+    gpio.add_event_detect(button_pin, gpio.RISING, callback =lambda channel: button_press(channel,reader) ,bouncetime = 300)
     
     try:
         while True:
@@ -139,7 +137,10 @@ def rfid_thread():
         gpio.cleanup(rfid_pins)
         print('cleaned up the pins of rfid and button')
         
-
+gpio.setmode(gpio.BCM)
+button_pin = 21
+rfid_pins = [8,10,9,11,22]
+gpio.setup(button_pin, gpio.IN , pull_up_down= gpio.PUD_DOWN)
 
 
 if __name__ == '__main__':
