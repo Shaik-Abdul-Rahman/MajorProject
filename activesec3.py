@@ -1,4 +1,4 @@
-from sensors import Appliances
+from sensors import Appliances, UltraSensor, DhtSensor
 import threading
 import RPi.GPIO as gpio
 import time
@@ -39,7 +39,7 @@ def email_conn():
     msg['From'] = sender_email
     msg['To'] = receiver_email
     msg['Subject'] = 'intrusion detected'
-    message = f'CLICK ON THIS LINK TO SEE THE LIVE FEED/n{URL}+/camera_feed'
+    message = 'CLICK ON THIS LINK TO SEE THE LIVE FEED/n{URL}+/camera_feed'
 
     # Attach message
     msg.attach(MIMEText(message, 'plain'))
@@ -61,8 +61,34 @@ def email_conn():
 
 
 def motion_sensor():
+    
+    distance_sensor = UltraSensor()
      
-
+    try:
+        while True:
+            time.sleep(5)
+            dist = distance_sensor.update_dist()
+            print(dist)
+            if dist < 0.5:
+                print('intrusion  timer starts')
+                
+                time.sleep(5)
+                dist = distance_sensor.update_dist()
+                if dist < 0.5:
+                    print('intrusion detected')
+                    capture = capture_img()
+                    if capture:
+                        email_conn()
+                        time.sleep(30)
+            else:
+                print('no intrusion detected')
+                time.sleep(5)        
+    except Exception as e:
+        print('there has been an error', e)
+        distance_sensor.cleanup()
+    except KeyboardInterrupt:
+        print('KeyboardInterrup')
+        distance_sensor.cleanup()
 
 
 
@@ -101,9 +127,11 @@ def get_db_connection():
 def initialize_reader():
     return SimpleMFRC522()
 
+
+data = {}
 # Function to read RFID card
 def read_rfid(reader):
-    data = {}
+    global data
     try:
         print('Place your card')
         id, text = reader.read()
@@ -161,9 +189,63 @@ def rfid_thread():
         gpio.cleanup(button_pin)
         gpio.cleanup(rfid_pins)
         print('Cleaned up GPIO pins')
+        
+        
+
+
+
+
+
+def update_app():
+    global data
+#    try:
+    temp_sensor = DhtSensor()
+    while True:
+        
+        values = temp_sensor.update_readings()
+        if 'id' in data:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM users WHERE rfid = %s',(data['id'],))
+            values_of_bulbs = cursor.fetchone()
+            
+            cursor.execute('UPDATE users SET temp = %s , humidity = %s',(values['temperature'],values['humidity']))
+            conn.commit()
+            conn.close()
+#                bulb_ = Appliances(values[3:8])
+            if values_of_bulbs:
+                print(values_of_bulbs)
+                bulb_ = Appliances(values_of_bulbs[3:8])
+                print('Unlocked')
+            else:
+                print('Unregistered User')
+                print('updated the bulbs')
+            time.sleep(1)
+        else:
+            print('wait for user to enter')
+            time.sleep(5)
+    #except Exception as e:
+     #   print('error occured in temp sensing and update: ', e)
+      #  temp_sensor.cleanup()
+    
+        
+            
+
+
+
+
+
 
 if __name__ == '__main__':
     rfid = threading.Thread(target=rfid_thread)
+    intrusion = threading.Thread(target = motion_sensor)
+    update_read = threading.Thread(target = update_app)
+    
     rfid.start()
+    intrusion.start()
+    update_read.start()
+    
     rfid.join()
+    intrusion.join()
+    update_read.join()
     print('RFID thread stopped')
