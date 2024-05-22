@@ -9,7 +9,7 @@ import requests
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 current_temperature = 100
-URL = 'https://lionfish-intent-nicely.ngrok-free.app'
+URL = 'https://bobcat-sharing-alien.ngrok-free.app'
 
 def init_status(user):
     conn = get_db_connection()
@@ -191,7 +191,7 @@ def generate_frames():
 
 @app.route('/get_camera_feed')
 def get_camera_feed():
-    response = requests.get('https://lionfish-intent-nicely.ngrok-free.app/camera_feed')
+    response = requests.get('https://bobcat-sharing-alien.ngrok-free.app/camera_feed')
 
     # Check if the request was successful
     if response.status_code == 200:
