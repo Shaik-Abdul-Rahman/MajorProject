@@ -9,6 +9,7 @@ URL = 'https://lionfish-intent-nicely.ngrok-free.app'
 class DhtSensor:
     def __init__(self):
         self.gpio = GPIO
+        self.gpio.setwarnings(False)
         self.gpio.setmode(self.gpio.BCM)
         self.sensor = Adafruit_DHT.DHT11
         self.pin = 17
@@ -47,28 +48,12 @@ class UltraSensor:
         self.gpio.cleanup([23,24])
         
 
-class SolenoidLock:
-    def __init__(self):
-        self.gpio = GPIO
-        self.gpio.setwarnings(False)
-        self.gpio.setmode(GPIO.BCM)
-        self.gpio.setup(18, GPIO.OUT)
-
-    def update_lock(self, status):
-        if status == 'Lock':
-            self.gpio.output(18, 1)
-            sleep(1)
-            return 'Locked Successfully'
-        else:
-            self.gpio.output(18, 0)
-            sleep(1)
-            return 'Unlocked Successfully'
-
 class Appliances:
     def __init__(self, status):
         self.pins = [6,13,19,26,18]
         self.status = status
         GPIO.setmode(GPIO.BCM)
+        GPIO.setwarnings(False)
         try:
             for pin, stat in zip(self.pins, self.status):
                 GPIO.setup(pin,GPIO.OUT)
@@ -77,31 +62,6 @@ class Appliances:
             #GPIO.cleanup()
             print('appliances restored succesfully.')
 
-class Bulb:
-    def __init__(self, statuses):
-        self.pins = [17, 27, 22, 5, 18]
-        self.statuses = statuses
-        GPIO.setmode(GPIO.BCM)
-        for pin, status in zip(self.pins, self.statuses):
-            GPIO.setup(pin, GPIO.OUT)
-            GPIO.output(pin, GPIO.HIGH if status else GPIO.LOW)
-    def update_system(self,new_values):
-        for pin, status in zip(self.pins, new_values):
-            GPIO.setup(pin, GPIO.OUT)
-            GPIO.output(pin, GPIO.HIGH if status else GPIO.LOW)
-
-    def close_all(self):
-        for pin in self.pins:
-            GPIO.output(pin, GPIO.LOW)
-
-    def change_status(self):
-        GPIO.setup(18,GPIO.OUT)
-        read = GPIO.input(18)
-
-        GPIO.output(18, GPIO.HIGH if read == GPIO.LOW else GPIO.LOW)
-        print('Unlocked' if read == GPIO.LOW else 'Locked')
-    def unlock_lock(self):
-        GPIO.output(18,GPIO.HIGH)
 
 class rfid:
 

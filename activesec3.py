@@ -86,6 +86,7 @@ def motion_sensor():
     except Exception as e:
         print('there has been an error', e)
         distance_sensor.cleanup()
+        motion_sensor()
     except KeyboardInterrupt:
         print('KeyboardInterrup')
         distance_sensor.cleanup()
@@ -109,7 +110,7 @@ rfid_pins = [8, 10, 9, 11, 22]
 wait_for_button = True  # Flag to control waiting for button press
 
 # Set up button pin
-gpio.setup(button_pin, gpio.IN, pull_up_down=gpio.PUD_DOWN)
+gpio.setup(button_pin, gpio.IN, pull_up_down=gpio.PUD_UP)
 
 
 
@@ -132,6 +133,7 @@ data = {}
 # Function to read RFID card
 def read_rfid(reader):
     global data
+    
     try:
         print('Place your card')
         id, text = reader.read()
@@ -157,6 +159,8 @@ def read_rfid(reader):
             print(status)
             bulb_ = Appliances(status[3:8])
             print('Unlocked')
+            gpio.output(20, gpio.LOW)
+            gpio.output(16, gpio.HIGH)
         else:
             print('Unregistered User')
         
@@ -179,9 +183,17 @@ def button_press(channel):
 # RFID thread function
 def rfid_thread():
     global reader
+    
+    red = 20
+    green = 16
+    gpio.setup(red, gpio.OUT)
+    gpio.setup(green, gpio.OUT)
+    gpio.output(red, gpio.HIGH)
+    gpio.output(green, gpio.LOW)
+    
     reader = initialize_reader()
     print('Waiting for button press...')
-    gpio.add_event_detect(button_pin, gpio.RISING, callback=button_press, bouncetime=200)
+    gpio.add_event_detect(button_pin, gpio.FALLING, callback=button_press, bouncetime=200)
     try:
         while True:
             time.sleep(0.1)
