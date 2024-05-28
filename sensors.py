@@ -50,7 +50,7 @@ class UltraSensor:
 
 class Appliances:
     def __init__(self, status):
-        self.pins = [6,13,19,26,18]
+        self.pins = [6,13,19,18,26]
         self.status = status
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)

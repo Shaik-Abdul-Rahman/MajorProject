@@ -161,11 +161,13 @@ def read_rfid(reader):
             print('Unlocked')
             gpio.output(20, gpio.LOW)
             gpio.output(16, gpio.HIGH)
+            gpio.output(5,gpio.LOW)
         else:
             print('Unregistered User')
         
     except Exception as e:
         print(f'Error reading RFID card: {e}')
+	
     finally:
         gpio.cleanup(rfid_pins)
         print('gpio cleaned up')
@@ -186,6 +188,9 @@ def rfid_thread():
     
     red = 20
     green = 16
+    logged = 5
+    gpio.setup(logged, gpio.OUT)
+    gpio.output(logged, gpio.HIGH)
     gpio.setup(red, gpio.OUT)
     gpio.setup(green, gpio.OUT)
     gpio.output(red, gpio.HIGH)
@@ -254,10 +259,10 @@ if __name__ == '__main__':
     update_read = threading.Thread(target = update_app)
     
     rfid.start()
-    intrusion.start()
+#    intrusion.start()
     update_read.start()
     
     rfid.join()
-    intrusion.join()
+ #   intrusion.join()
     update_read.join()
     print('RFID thread stopped')
